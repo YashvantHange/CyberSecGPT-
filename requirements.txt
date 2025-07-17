@@ -1,0 +1,11 @@
+openai
+streamlit
+python-dotenv
+requests
+langchain
+spacy
+scikit-learn
+pandas
+numpy
+matplotlib
+tqdm
