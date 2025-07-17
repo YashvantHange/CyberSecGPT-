@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CyberBot Chat History</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="chat-wrapper">
+    <header>
+      <h1>Chat History</h1>
+      <a href="/">⬅ Back to Chat</a>
+    </header>
+
+    <div id="chat-history">
+      {% for chat in chats %}
+        <div class="message">
+          <div class="user-msg"><strong>You:</strong> {{ chat.user_input }}</div>
+          <div class="bot-msg"><strong>Bot:</strong> {{ chat.bot_reply }}</div>
+          <div class="timestamp">🕒 {{ chat.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>
