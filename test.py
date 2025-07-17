@@ -14,5 +14,3 @@ try:
     print("JSON:", response.json())
 except Exception as e:
     print("Error parsing JSON:", e)
-
-#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")  # 🔑 Replace with your key
