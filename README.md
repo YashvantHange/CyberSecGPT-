@@ -1,7 +1,7 @@
-# CyberSecGPT-
-# 🛡️ CyberSecGPT - AI-Powered Cybersecurity Assistant
+# CyberCore Ai-
+# 🛡️ CyberCore - AI-Powered Cybersecurity Assistant
 
-CyberSecGPT is an intelligent, GPT-powered assistant designed to streamline cybersecurity operations. It provides contextual support for threat analysis, vulnerability triage, incident response, and security automation through natural language processing.
+CyberCore Ai is an intelligent, GPT-powered assistant designed to streamline cybersecurity operations. It provides contextual support for threat analysis, vulnerability triage, incident response, and security automation through natural language processing.
 
 ---
 
