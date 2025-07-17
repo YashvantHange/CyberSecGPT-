@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 CyberGPT Insights</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #e6edf3;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      color: #58a6ff;
+    }
+
+    .section {
+      background: #161b22;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 5px 0;
+      border-bottom: 1px solid #30363d;
+    }
+
+    a.back {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    a.back:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="back">← Back to Chat</a>
+  <h1>📊 CyberGPT Usage Insights</h1>
+
+  <div class="section">
+    <h2>🛠️ Most Used Tools</h2>
+    <ul>
+      {% for tool, count in tools %}
+        <li><strong>{{ tool }}</strong>: {{ count }} times</li>
+      {% else %}
+        <li>No tool usage data yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>🔑 Most Common Keywords</h2>
+    <ul>
+      {% for word, count in keywords[:20] %}
+        <li>{{ word }}: {{ count }}</li>
+      {% else %}
+        <li>No keyword data yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>🗨️ Total Chats</h2>
+    <p>{{ total }} messages exchanged.</p>
+  </div>
+</body>
+</html>
