@@ -1,4 +1,4 @@
-# CyberCore Ai-
+# CyberCore AI-
 # 🛡️ CyberCore - AI-Powered Cybersecurity Assistant
 
 CyberCore Ai is an intelligent, GPT-powered assistant designed to streamline cybersecurity operations. It provides contextual support for threat analysis, vulnerability triage, incident response, and security automation through natural language processing.
