@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CyberGPT - AI Security Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0d1117;
+      color: #e6edf3;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      padding: 20px;
+      height: 100vh;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .history-panel, .insight-panel {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 15px;
+      width: 220px;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .main-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      color: #58a6ff;
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding-right: 10px;
+    }
+
+    .chat-entry {
+      margin-bottom: 20px;
+    }
+
+    .chat-entry.user p {
+      color: #c9d1d9;
+    }
+
+    .chat-entry.assistant p {
+      color: #58a6ff;
+      white-space: pre-wrap;
+    }
+
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-area textarea,
+    .input-area input[type="file"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+    }
+
+    .input-area button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background-color: #238636;
+      color: white;
+      transition: background-color 0.2s ease;
+    }
+
+    .input-area button:hover {
+      background-color: #2ea043;
+    }
+
+    .sidebar-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: #58a6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar-link:hover {
+      text-decoration: underline;
+    }
+
+    .history-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffa657;
+    }
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .history-list li {
+      margin-bottom: 8px;
+      cursor: pointer;
+      color: #58a6ff;
+    }
+
+    .history-list li:hover {
+      text-decoration: underline;
+    }
+
+    .collapsible {
+      background: none;
+      border: none;
+      color: #58a6ff;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 5px;
+      padding: 0;
+    }
+
+    @media screen and (max-width: 800px) {
+      .container {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .history-panel,
+      .insight-panel {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🛡️ CyberGPT</h1>
+  <div class="container">
+
+    <!-- 🔹 History Panel -->
+    <div class="history-panel">
+      <div class="history-title">🕓 Chat History</div>
+      <ul class="history-list" id="history-list"></ul>
+    </div>
+
+    <!-- 🔹 Main Panel -->
+    <div class="main-panel">
+      <div class="chat-box" id="chat-box"></div>
+      <form id="chat-form" enctype="multipart/form-data">
+        <div class="input-area">
+          <textarea id="prompt" name="prompt" rows="3" placeholder="Type your cybersecurity question... (press Enter to send)"></textarea>
+          <input type="file" name="file" id="file">
+          <button type="submit">Send</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 🔹 Insight Panel -->
+    <div class="insight-panel">
+      <div class="history-title">📊 Insights</div>
+      <a href="/insights" class="sidebar-link">➡️ View Full Insights</a>
+    </div>
+
+  </div>
+
+  <script>
+    const form = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+    const promptInput = document.getElementById('prompt');
+    const historyList = document.getElementById('history-list');
+    const LOCAL_HISTORY_KEY = "cybergpt_chat_history";
+
+    // Restore from localStorage
+    window.onload = () => {
+      const saved = JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || "[]");
+      for (const entry of saved) {
+        appendMessage(entry.role, entry.content, true);
+      }
+    };
+
+    // Main form handler
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('file');
+      const prompt = promptInput.value.trim();
+      const file = fileInput.files[0];
+
+      if (!prompt && !file) return;
+
+      appendMessage("user", prompt || `📎 ${file.name}`);
+      updateHistory(prompt);
+
+      const formData = new FormData();
+      if (prompt) formData.append("prompt", prompt);
+      if (file) formData.append("file", file);
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      appendMessage("assistant", data.response);
+      promptInput.value = "";
+      fileInput.value = "";
+    });
+
+    // Enter to submit
+    promptInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
+
+    // Update chat window
+    function appendMessage(role, content, skipSave = false) {
+      const entry = document.createElement('div');
+      entry.classList.add('chat-entry', role);
+
+      if (role === 'assistant' && content.length > 400) {
+        const preview = content.slice(0, 400);
+        entry.innerHTML = `
+          <p><strong>🤖 CyberGPT:</strong><br><span class="collapsed">${preview}...</span>
+          <span class="full" style="display:none;">${content}</span>
+          <button class="collapsible">Show more</button></p>
+        `;
+        const btn = entry.querySelector('.collapsible');
+        const full = entry.querySelector('.full');
+        const collapsed = entry.querySelector('.collapsed');
+        btn.onclick = () => {
+          const isShown = full.style.display === 'inline';
+          full.style.display = isShown ? 'none' : 'inline';
+          collapsed.style.display = isShown ? 'inline' : 'none';
+          btn.textContent = isShown ? 'Show more' : 'Show less';
+        };
+      } else {
+        entry.innerHTML = `<p><strong>${role === 'user' ? '🧑 You' : '🤖 CyberGPT'}:</strong><br>${content}</p>`;
+      }
+
+      chatBox.appendChild(entry);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      if (!skipSave) saveToLocal(role, content);
+    }
+
+    // Save to localStorage
+    function saveToLocal(role, content) {
+      let saved = JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || "[]");
+      saved.push({ role, content });
+      if (saved.length > 100) saved = saved.slice(-100); // cap to last 100
+      localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(saved));
+    }
+
+    // History sidebar
+    function updateHistory(prompt) {
+      const li = document.createElement('li');
+      li.textContent = prompt.slice(0, 40) + (prompt.length > 40 ? "..." : "");
+      li.onclick = () => promptInput.value = prompt;
+      historyList.appendChild(li);
+    }
+  </script>
+</body>
+</html>
